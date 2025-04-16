@@ -1,3 +1,5 @@
+model = joblib.load("app/model/sentiment_model.pkl")
+
 import joblib
 joblib.dump(model, 'sentiment_model.pkl')
 
