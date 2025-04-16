@@ -1,14 +1,22 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
+import numpy as np
 
+# Load your pre-trained sentiment analysis model
+model = joblib.load('app/model/sentiment_model.pkl')
+
+# FastAPI app
 app = FastAPI()
-model = joblib.load("app/model/sentiment_model.pkl")
 
-class InputText(BaseModel):
+# Define the request body
+class TextData(BaseModel):
     text: str
 
-@app.post("/predict")
-def predict_sentiment(data: InputText):
-    result = model.predict([data.text])
-    return {"sentiment": result[0]}
+# Prediction endpoint
+@app.post("/predict/")
+def predict_sentiment(data: TextData):
+    # Preprocess the data and make a prediction
+    text = data.text
+    prediction = model.predict([text])  # Replace with your model's prediction method
+    return {"prediction": prediction[0]}
