@@ -1,3 +1,5 @@
 import joblib
 joblib.dump(model, 'sentiment_model.pkl')
 
+from google.colab import files
+files.download('sentiment_model.pkl')
