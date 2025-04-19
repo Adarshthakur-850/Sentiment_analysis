@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id' // Replace with your Jenkins DockerHub credential ID
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id'
         IMAGE_NAME = 'adrshthakur8368/sentiment-analysis-app'
         IMAGE_TAG = 'latest'
     }
@@ -14,30 +14,21 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Image') {
             steps {
                 script {
+                    echo "Building Docker Image: ${IMAGE_NAME}:${IMAGE_TAG}"
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
 
-        stage('Login to Docker Hub') {
+        stage('Login and Push') {
             steps {
                 script {
+                    echo "Logging in and pushing image"
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        echo 'Logged in to Docker Hub'
-                    }
-                }
-            }
-        }
-
-        stage('Push Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        def customImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
-                        customImage.push()
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
             }
@@ -45,8 +36,11 @@ pipeline {
     }
 
     post {
-        always {
-            echo 'Pipeline execution finished.'
+        failure {
+            echo '❌ Build failed. Check logs above for details.'
+        }
+        success {
+            echo '✅ Build and push succeeded.'
         }
     }
 }
